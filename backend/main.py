@@ -2,21 +2,21 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi import Request
 from fastapi import UploadFile, File
-from ai_modules.ocr import extract_text_from_image
+from backend.ai_modules.ocr import extract_text_from_image
 import numpy as np
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-from database import SessionLocal, engine, Base
-from models import PartModel
-from ai_modules.matcher import find_best_matches
+from backend.database import SessionLocal, engine, Base
+from backend.models import PartModel
+from backend.ai_modules.matcher import find_best_matches
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="backend/templates")
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
@@ -92,7 +92,8 @@ import cv2
 import numpy as np
 
 @app.post("/upload-image")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
+
     image_bytes = await file.read()
 
     # Convert bytes to numpy array
@@ -101,9 +102,24 @@ async def upload_image(file: UploadFile = File(...)):
     # Decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
+    # Extract text
     extracted_text = extract_text_from_image(img)
 
+    # Store extracted text as part
+    new_part = PartModel(
+        part_name=extracted_text,
+        material="Unknown",
+        size="Unknown",
+        base_price=500,
+        seller_name="Image Seller"
+    )
+
+    db.add(new_part)
+    db.commit()
+    db.refresh(new_part)
+
     return {
+        "message": "Part stored successfully from image",
         "detected_text": extracted_text
     }
 class ConfirmRequest(BaseModel):

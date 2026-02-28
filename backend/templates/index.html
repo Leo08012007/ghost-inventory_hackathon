@@ -113,15 +113,26 @@
 <div class="container">
 
     <div class="card">
-        <h2>Seller Portal</h2>
-        <input id="part_name" placeholder="Part Name">
-        <input id="material" placeholder="Material">
-        <input id="size" placeholder="Size">
-        <input id="base_price" type="number" placeholder="Base Price">
-        <input id="seller_name" placeholder="Seller Organization">
-        <button onclick="uploadPart()">Securely List Part</button>
-        <p id="upload_status"></p>
-    </div>
+    <h2>Seller Portal</h2>
+
+    <input id="part_name" placeholder="Part Name">
+    <input id="material" placeholder="Material">
+    <input id="size" placeholder="Size">
+    <input id="base_price" type="number" placeholder="Base Price">
+    <input id="seller_name" placeholder="Seller Organization">
+
+    <button onclick="uploadPart()">Securely List Part</button>
+
+    <hr style="margin:20px 0; opacity:0.3;">
+
+    <p style="font-size:13px; opacity:0.8;">OR Upload Part Image</p>
+
+    <input type="file" id="imageUpload" accept="image/*">
+
+    <button onclick="uploadImage()">Upload Image & Auto List</button>
+
+    <p id="upload_status"></p>
+</div>
 
     <div class="card">
         <h2>Buyer Portal</h2>
@@ -139,6 +150,7 @@
 </footer>
 
 <script>
+    
 async function uploadPart() {
     const data = {
         part_name: document.getElementById("part_name").value,
@@ -156,6 +168,28 @@ async function uploadPart() {
 
     const result = await response.json();
     document.getElementById("upload_status").innerText = result.message;
+}
+async function uploadImage() {
+    const fileInput = document.getElementById("imageUpload");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/upload-image", {
+        method: "POST",
+        body: formData
+    });
+
+    const result = await response.json();
+
+    document.getElementById("upload_status").innerText =
+        "Auto-listed: " + result.detected_text;
 }
 
 async function searchPart() {
