@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ghost Inventory Platform</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 10px;
+        }
+
+        header h1 {
+            font-size: 34px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            padding: 40px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            padding: 30px;
+            border-radius: 14px;
+            width: 420px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            font-weight: 500;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 11px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+
+        .result-card {
+            background: #1e293b;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .price {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Ghost Inventory Platform</h1>
+    <p>Privacy-Preserving Industrial Spare Parts Exchange</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Seller Portal</h2>
+        <input id="part_name" placeholder="Part Name">
+        <input id="material" placeholder="Material">
+        <input id="size" placeholder="Size">
+        <input id="base_price" type="number" placeholder="Base Price">
+        <input id="seller_name" placeholder="Seller Organization">
+        <button onclick="uploadPart()">Securely List Part</button>
+        <p id="upload_status"></p>
+    </div>
+
+    <div class="card">
+        <h2>Buyer Portal</h2>
+        <input id="query" placeholder="Search Part">
+        <input id="urgency" type="number" placeholder="Urgency Level (1-5)">
+        <button onclick="searchPart()">Search Network</button>
+
+        <div id="results"></div>
+    </div>
+
+</div>
+
+<footer>
+    AI-Powered Local Supply Mesh | Confidential Matching Engine
+</footer>
+
+<script>
+async function uploadPart() {
+    const data = {
+        part_name: document.getElementById("part_name").value,
+        material: document.getElementById("material").value,
+        size: document.getElementById("size").value,
+        base_price: parseFloat(document.getElementById("base_price").value),
+        seller_name: document.getElementById("seller_name").value
+    };
+
+    const response = await fetch("/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    document.getElementById("upload_status").innerText = result.message;
+}
+
+async function searchPart() {
+    const data = {
+        query: document.getElementById("query").value,
+        urgency_level: parseInt(document.getElementById("urgency").value)
+    };
+
+    const response = await fetch("/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    result.matches.forEach(part => {
+        const div = document.createElement("div");
+        div.className = "result-card";
+        div.innerHTML = `
+            <p><strong>${part.part_name}</strong></p>
+            <p>${part.material} | ${part.size}</p>
+            <p class="price">Suggested Price: ${part.suggested_price}</p>
+            <button onclick="confirmDeal(${part.part_id})">Confirm Transaction</button>
+        `;
+        resultsDiv.appendChild(div);
+    });
+}
+
+async function confirmDeal(partId) {
+    const response = await fetch("/confirm-deal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ part_id: partId })
+    });
+
+    const result = await response.json();
+    alert("Seller Identity Revealed: " + result.seller_name);
+}
+</script>
+
+</body>
+</html>
