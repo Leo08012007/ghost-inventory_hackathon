@@ -5,7 +5,7 @@ Ghost Inventory is an AI-powered local supply mesh that enables factories to sec
 
 ---
 
-## 🚨 Problem Statement
+##  Problem Statement
 
 Manufacturing clusters face significant production delays due to unplanned machine downtime caused by the unavailability of critical spare parts.
 
@@ -17,7 +17,7 @@ There is no secure, trusted mechanism to discover and exchange excess inventory 
 
 ---
 
-## 💡 Proposed Solution
+##  Proposed Solution
 
 Ghost Inventory introduces a privacy-first AI matching layer that:
 
@@ -29,25 +29,25 @@ Ghost Inventory introduces a privacy-first AI matching layer that:
 
 ---
 
-## 🧠 Key Features
+## Key Features
 
-### 1️⃣ Semantic AI Matching
+### 1.Semantic AI Matching
 Uses Sentence Transformers to match spare parts intelligently, even when queries are not exact text matches.
 
-### 2️⃣ OCR-Based Part Identification
+### 2.OCR-Based Part Identification
 Extracts part details from uploaded images using EasyOCR.
 
-### 3️⃣ Dynamic Downtime-Based Pricing
+### 3. Dynamic Downtime-Based Pricing
 Adjusts suggested pricing based on urgency level.
 
-### 4️⃣ Privacy-Preserving Transaction Flow
+### 4. Privacy-Preserving Transaction Flow
 - Seller identity hidden during search
 - Revealed only after buyer confirms transaction
 - Secure inventory listing
 
 ---
 
-## 🏗 System Architecture
+##  System Architecture
 
 **User Layer**
 - Seller Portal
@@ -66,7 +66,7 @@ Adjusts suggested pricing based on urgency level.
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - FastAPI
 - SQLAlchemy
@@ -79,6 +79,37 @@ Adjusts suggested pricing based on urgency level.
 
 ---
 
-## 🚀 How to Run
+##  How to Run
 
-### 1️⃣ Install dependencies
+### 1️. Install dependencies
+### 2️. Run the server
+### 3️. Open in browser
+
+---
+
+##  Demo Flow
+
+1. Seller securely lists a spare part.
+2. Buyer searches inventory using natural language.
+3. AI matches relevant parts.
+4. Seller identity remains hidden.
+5. Buyer confirms transaction.
+6. Seller details are revealed.
+
+---
+
+##  Privacy by Design
+
+Ghost Inventory is built on the principle that:
+- Inventory visibility should not expose competitive intelligence.
+- Transactions must occur without public inventory leakage.
+- Trust must be enabled through controlled information disclosure.
+
+---
+
+##  Future Scope
+
+- Federated Learning for cross-factory indexing
+- Zero-Knowledge Proof-based inventory validation
+- Geospatial filtering within industrial clusters
+- Real-time demand-risk predictive pricing
