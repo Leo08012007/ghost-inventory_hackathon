@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartProcure AI ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; }
+        .section { display: none; }
+        .active { display: block; }
+        .flash { animation: flash 0.6s ease; }
+        @keyframes flash {
+            0%   { background-color: #1e3a5f; }
+            50%  { background-color: #2563eb44; }
+            100% { background-color: #334155; }
+        }
+    </style>
+</head>
+<body>
+<div class="flex h-screen">
+    <nav class="w-64 bg-slate-900 p-6 border-r border-slate-800 shadow-2xl">
+        <h2 class="text-2xl font-bold text-blue-500 mb-10">SmartProcure</h2>
+        <div class="space-y-4">
+            <button onclick="nav('dash')" class="w-full text-left p-3 rounded hover:bg-slate-800 transition">📊 Dashboard</button>
+            <button onclick="nav('rfq')" class="w-full text-left p-3 rounded hover:bg-slate-800 transition">✉️ RFQ Engine</button>
+            <button onclick="nav('analysis')" class="w-full text-left p-3 rounded hover:bg-slate-800 transition">🤖 AI Analysis</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-10 overflow-auto">
+        <div id="dash" class="section active">
+            <h2 class="text-3xl font-bold mb-6">Pipeline Insights</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl text-center">
+                    <p class="text-slate-400 uppercase text-xs font-bold">Total RFQs</p>
+                    <h3 id="c-rfq" class="text-4xl font-bold text-blue-400">0</h3>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl text-center">
+                    <p class="text-slate-400 uppercase text-xs font-bold">Total Vendors</p>
+                    <h3 id="c-ven" class="text-4xl font-bold text-green-400">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="rfq" class="section">
+            <h2 class="text-3xl font-bold mb-6 text-purple-400">✨ LLM Smart Entry</h2>
+            <textarea id="raw" placeholder="Paste vendor email here..." class="w-full h-32 bg-slate-800 p-4 rounded mb-4 border border-blue-500/30 outline-none focus:border-blue-500"></textarea>
+            <button onclick="extract()" id="ebtn" class="bg-purple-600 hover:bg-purple-700 px-8 py-3 rounded-lg font-bold mb-4 transition shadow-lg shadow-purple-500/20">Extract Data with Gemini AI</button>
+
+            <!-- Status message bar -->
+            <div id="status-bar" class="hidden mb-6 px-4 py-3 rounded-lg text-sm font-semibold"></div>
+
+            <div class="grid grid-cols-2 gap-6 bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-2xl">
+                <div>
+                    <label class="text-xs text-slate-400">Vendor</label>
+                    <input id="v" class="w-full bg-slate-700 p-2 rounded outline-none border border-slate-600 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Price</label>
+                    <input id="p" class="w-full bg-slate-700 p-2 rounded outline-none border border-slate-600 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Days</label>
+                    <input id="d" class="w-full bg-slate-700 p-2 rounded outline-none border border-slate-600 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Item</label>
+                    <input id="i" class="w-full bg-slate-700 p-2 rounded outline-none border border-slate-600 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Code</label>
+                    <input id="c" class="w-full bg-slate-700 p-2 rounded outline-none border border-slate-600 focus:border-blue-500" value="RFQ-500">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="saveRFQ()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold shadow-lg transition-all">Save to ERP Database</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="analysis" class="section">
+            <h2 class="text-3xl font-bold mb-6">Predictive Analysis</h2>
+            <div class="bg-slate-800 p-12 rounded-3xl border-2 border-dashed border-blue-500/30 text-center shadow-2xl">
+                <button onclick="runAI()" class="bg-blue-600 hover:bg-blue-700 px-12 py-5 rounded-full font-bold text-2xl hover:scale-105 transition shadow-lg">🚀 Execute AI Analysis</button>
+                <div id="res-box" class="mt-12 hidden p-8 bg-black/40 rounded-2xl border border-blue-500/20 shadow-xl">
+                    <p class="text-blue-400 uppercase text-xs font-bold tracking-widest text-center">Recommended Winner</p>
+                    <h1 id="res-name" class="text-6xl font-bold text-green-400 my-4 text-center"></h1>
+                    <p id="res-ml" class="text-lg text-yellow-400 italic text-center"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function nav(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    async function refresh() {
+        const d = await (await fetch('/get_data')).json();
+        document.getElementById('c-rfq').innerText = d.rfqs.length;
+        document.getElementById('c-ven').innerText = d.vendors.length;
+    }
+
+    function showStatus(msg, type) {
+        const bar = document.getElementById('status-bar');
+        bar.classList.remove('hidden', 'bg-green-800', 'text-green-200', 'bg-red-800', 'text-red-200', 'bg-yellow-800', 'text-yellow-200');
+        if (type === 'success') bar.classList.add('bg-green-800', 'text-green-200');
+        else if (type === 'error') bar.classList.add('bg-red-800', 'text-red-200');
+        else bar.classList.add('bg-yellow-800', 'text-yellow-200');
+        bar.innerText = msg;
+    }
+
+    // Flash effect on a field when it gets filled
+    function flashField(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('flash');
+        void el.offsetWidth; // trigger reflow to restart animation
+        el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 700);
+    }
+
+    // THE CORE AUTO-FILL ENGINE — FIXED
+    async function extract() {
+        const textInput = document.getElementById('raw').value.trim();
+        if (!textInput) {
+            showStatus('⚠️ Please paste a vendor email first!', 'warn');
+            return;
+        }
+
+        const btn = document.getElementById('ebtn');
+        btn.innerText = "⏳ Extracting...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/llm_extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: textInput })
+            });
+
+            const d = await res.json();
+
+            if (d.error) {
+                showStatus('❌ Extraction failed: ' + d.error, 'error');
+                return;
+            }
+
+            // AUTO-FILL: map each key to its field with flash animation
+            const fieldMap = { v: 'v', p: 'p', d: 'd', i: 'i' };
+            let filledCount = 0;
+
+            for (const [key, fieldId] of Object.entries(fieldMap)) {
+                if (d[key] !== undefined && d[key] !== "") {
+                    document.getElementById(fieldId).value = d[key];
+                    flashField(fieldId);
+                    filledCount++;
+                }
+            }
+
+            if (filledCount === 0) {
+                showStatus('⚠️ AI responded but could not find any fields. Try a clearer email.', 'warn');
+            } else {
+                showStatus(`✅ Auto-filled ${filledCount} field(s) successfully! Review and save.`, 'success');
+            }
+
+        } catch (err) {
+            console.error("Extraction error:", err);
+            showStatus('❌ Network error — make sure Flask is running and API key is valid.', 'error');
+        } finally {
+            btn.innerText = "Extract Data with Gemini AI";
+            btn.disabled = false;
+        }
+    }
+
+    async function saveRFQ() {
+        const payload = {
+            code: document.getElementById('c').value,
+            item: document.getElementById('i').value,
+            vendor: document.getElementById('v').value,
+            price: document.getElementById('p').value,
+            days: document.getElementById('d').value
+        };
+        await fetch('/add_data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showStatus('💾 Quote saved to ERP database!', 'success');
+        refresh();
+    }
+
+    async function runAI() {
+        const d = await (await fetch('/analyze')).json();
+        document.getElementById('res-box').classList.remove('hidden');
+        document.getElementById('res-name').innerText = d.vendor;
+        document.getElementById('res-ml').innerText = `🧠 ML Insight: Found ${d.risk} days predicted delay risk. Final Score: ${d.score}/10`;
+    }
+
+    window.onload = refresh;
+</script>
+</body>
+</html>

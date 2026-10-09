@@ -1,236 +1,1773 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Ghost Inventory Platform</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Inventory — Industrial Spare Parts Exchange & AI Matching Mesh</title>
+    <!-- Modern Typography: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
+        :root {
+            --bg-midnight: #0b0f19;
+            --bg-surface: #0f172a;
+            --bg-card: #161e31;
+            --bg-card-hover: #1e293b;
+            --border-color: #27354a;
+            --border-highlight: #3b82f6;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --primary-blue: #3b82f6;
+            --primary-blue-hover: #2563eb;
+            --accent-cyan: #06b6d4;
+            --success-green: #10b981;
+            --warning-amber: #f59e0b;
+            --danger-red: #ef4444;
+
+            --font-main: 'Inter', system-ui, sans-serif;
+            --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+            --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: #f8fafc;
+            padding: 0;
         }
 
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-midnight);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ---------------------------------------------------------
+           NAVBAR
+        --------------------------------------------------------- */
         header {
-            text-align: center;
-            padding: 40px 20px 10px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        header h1 {
-            font-size: 34px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 22px;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .brand-text h1 {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .brand-text p {
+            font-size: 12px;
+            color: var(--accent-cyan);
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+            background: rgba(22, 30, 49, 0.6);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            background: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .role-buyer { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .role-seller { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .role-admin { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .role-guest { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        /* ---------------------------------------------------------
+           BUTTONS & BADGES
+        --------------------------------------------------------- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-hover));
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #ffffff;
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: #ffffff;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-verified { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-demo { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-pending { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .badge-info { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        /* ---------------------------------------------------------
+           LAYOUT CONTAINERS
+        --------------------------------------------------------- */
+        .container {
+            max-width: 1380px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 30px;
+            flex: 1;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 30px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        /* ---------------------------------------------------------
+           DEMO ROLE QUICK SWITCH BAR
+        --------------------------------------------------------- */
+        .demo-bar {
+            background: rgba(22, 30, 49, 0.9);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .demo-bar-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .demo-bar-text strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .demo-bar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ---------------------------------------------------------
+           HERO SECTION (LANDING PAGE)
+        --------------------------------------------------------- */
+        .hero {
+            padding: 60px 0 80px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 24px;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 32px;
+        }
+
+        .stat-item h4 {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .stat-item p {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .hero-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+        }
+
+        .pulse-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* ---------------------------------------------------------
+           CARDS & FORMS
+        --------------------------------------------------------- */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 30px;
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-surface);
+            color: #ffffff;
+            font-size: 16px;
+            font-family: var(--font-main);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        /* ---------------------------------------------------------
+           MARKETPLACE PRODUCT GRID & COMPACT CARDS
+        --------------------------------------------------------- */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: 1fr; }
+            header { padding: 14px 20px; flex-direction: column; gap: 14px; }
+            .hero-title { font-size: 38px; }
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-card), 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Compact Image area only rendered if image exists */
+        .product-image-area {
+            width: 100%;
+            height: 140px;
+            background: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-title {
+            font-family: var(--font-heading);
+            font-size: 19px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+
+        .product-meta {
+            font-size: 13.5px;
+            color: var(--text-secondary);
             margin-bottom: 10px;
         }
 
-        header p {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            padding: 40px;
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.9);
-            padding: 30px;
-            border-radius: 14px;
-            width: 420px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .card h2 {
-            margin-bottom: 20px;
-            font-weight: 500;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        button {
-            width: 100%;
-            padding: 11px;
-            border-radius: 8px;
-            border: none;
-            background: linear-gradient(90deg, #3b82f6, #2563eb);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            transform: scale(1.02);
-            opacity: 0.9;
-        }
-
-        .result-card {
-            background: #1e293b;
-            padding: 15px;
-            margin-top: 15px;
+        .price-container {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            border: 1px solid #334155;
+            padding: 12px 14px;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .price {
-            color: #22c55e;
-            font-weight: bold;
+        .price-base {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .price-suggested {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--success-green);
+        }
+
+        .location-info {
+            font-size: 13.5px;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .ai-explanation {
+            background: rgba(6, 182, 212, 0.08);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            color: var(--accent-cyan);
+            margin-bottom: 14px;
+            line-height: 1.45;
+        }
+
+        /* ---------------------------------------------------------
+           TABLES
+        --------------------------------------------------------- */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        /* ---------------------------------------------------------
+           MODALS & TOASTS
+        --------------------------------------------------------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 620px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover { color: #ffffff; }
+
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .step-item {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .step-item.active {
+            color: var(--primary-blue);
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-highlight);
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         footer {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-color);
             text-align: center;
             padding: 30px;
-            color: #64748b;
-            font-size: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: auto;
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
 <header>
-    <h1>Ghost Inventory Platform</h1>
-    <p>Privacy-Preserving Industrial Spare Parts Exchange</p>
+    <div class="brand" onclick="showTab('landing')">
+        <div class="brand-icon">G</div>
+        <div class="brand-text">
+            <h1>Ghost Inventory</h1>
+            <p>Industrial Supply Mesh</p>
+        </div>
+    </div>
+
+    <nav class="nav-menu">
+        <button class="nav-item active" onclick="showTab('landing')">Overview</button>
+        <button class="nav-item" onclick="showTab('marketplace')">Marketplace</button>
+        <button class="nav-item" onclick="showTab('seller-portal')">Seller Hub</button>
+        <button class="nav-item" onclick="showTab('admin-panel')">Admin Console</button>
+        <button class="nav-item" onclick="showTab('transactions')">My Deals</button>
+    </nav>
+
+    <div class="nav-actions">
+        <div class="user-status">
+            <span id="user-role-badge" class="role-badge role-guest">GUEST</span>
+            <span id="user-name-display" style="font-size:14px; font-weight:500;">Guest User</span>
+        </div>
+        <button id="auth-btn" class="btn btn-primary btn-sm" onclick="openAuthModal()">Login / Register</button>
+    </div>
 </header>
 
 <div class="container">
 
-    <div class="card">
-    <h2>Seller Portal</h2>
+    <!-- QUICK HACKATHON DEMO ROLE SWITCHER -->
+    <div class="demo-bar">
+        <div class="demo-bar-text">
+            <strong>🚀 Hackathon Demo Role Switcher:</strong> Switch roles to test verification statuses & recommendations.
+        </div>
+        <div class="demo-bar-actions">
+            <button class="btn btn-sm btn-secondary" onclick="quickLogin('admin@ghostinventory.com', 'Admin123!')">🛡️ Admin Auditor</button>
+            <button class="btn btn-sm btn-secondary" onclick="quickLogin('apex_spares@industrial.com', 'Seller123!')">✅ Verified Seller A (Apex)</button>
+            <button class="btn btn-sm btn-secondary" onclick="quickLogin('bolt_tech@factory.com', 'Seller123!')">⏳ Pending Seller B (BoltTech)</button>
+            <button class="btn btn-sm btn-secondary" onclick="quickLogin('buyer_mahindra@auto.com', 'Buyer123!')">🏭 Buyer (Auto Plant #4)</button>
+        </div>
+    </div>
 
-    <input id="part_name" placeholder="Part Name">
-    <input id="material" placeholder="Material">
-    <input id="size" placeholder="Size">
-    <input id="base_price" type="number" placeholder="Base Price">
-    <input id="seller_name" placeholder="Seller Organization">
+    <!-- PAGE 1: LANDING PAGE -->
+    <div id="tab-landing" class="tab-content">
+        <section class="hero">
+            <div>
+                <h1 class="hero-title">Find Critical Parts. <span>Reduce Downtime.</span></h1>
+                <p class="hero-description">
+                    Ghost Inventory is a privacy-preserving industrial spare parts exchange mesh. Factories discover emergency components from nearby surplus warehouses without exposing sensitive inventory data.
+                </p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary" onclick="showTab('marketplace')">Explore Inventory Mesh →</button>
+                    <button class="btn btn-secondary" onclick="openAuthModal('seller')">Join as Supplier</button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <h4>40%</h4>
+                        <p>Downtime Saved</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>500+</h4>
+                        <p>Verified Suppliers</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>&lt;15 km</h4>
+                        <p>Cluster Radius</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>100%</h4>
+                        <p>Confidential Matching</p>
+                    </div>
+                </div>
+            </div>
 
-    <button onclick="uploadPart()">Securely List Part</button>
+            <!-- Interactive SaaS Live Preview Widget -->
+            <div class="hero-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="pulse-indicator"></span>
+                        <strong style="font-size:15px; color:#ffffff;">Live AI Matching Mesh</strong>
+                    </div>
+                    <span class="status-badge badge-info">Pimpri Industrial Cluster</span>
+                </div>
 
-    <hr style="margin:20px 0; opacity:0.3;">
+                <div style="background:#0f172a; padding:18px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:14px; font-weight:700;">SKF Deep Groove Ball Bearing 6205-2RSH</span>
+                        <span style="color:var(--success-green); font-weight:800; font-size:16px;">₹450</span>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-muted);">Apex Precision Components (DEMO VERIFIED · 4.8★)</p>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--accent-cyan); margin-top:10px;">
+                        <span>📍 1.2 km distance</span>
+                        <span>⚡ Dispatch: &lt; 2 hours</span>
+                    </div>
+                </div>
 
-    <p style="font-size:13px; opacity:0.8;">OR Upload Part Image</p>
+                <div style="background:#0f172a; padding:18px; border-radius:12px; border:1px solid var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:14px; font-weight:700;">Titanium Valve — Grade 5, 12 mm Flange</span>
+                        <span style="color:var(--success-green); font-weight:800; font-size:16px;">₹2,800</span>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-muted);">Precision Tech Alloys (DEMO VERIFIED · 4.2★)</p>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--accent-cyan); margin-top:10px;">
+                        <span>📍 14.5 km distance</span>
+                        <span>⚡ Dispatch: Same day</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
-    <input type="file" id="imageUpload" accept="image/*">
+    <!-- PAGE 2: BUYER MARKETPLACE -->
+    <div id="tab-marketplace" class="tab-content hidden">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">🔍 Search Industrial Spare Parts Network</h2>
+                    <p style="font-size:14px; color:var(--text-muted); margin-top:4px;">Natural language semantic search with Haversine geographical ranking.</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="getUserGPSLocation()">📍 Use My GPS Location</button>
+            </div>
 
-    <button onclick="uploadImage()">Upload Image & Auto List</button>
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Part Name / Model Number / Part # / Manufacturer</label>
+                    <input id="search-query" placeholder="e.g. SKF Bearing, Siemens PLC, Valve, Pressure Sensor..." value="">
+                </div>
 
-    <p id="upload_status"></p>
-</div>
+                <div class="form-group">
+                    <label>Urgency Level</label>
+                    <select id="search-urgency">
+                        <option value="1">1 — Low (Standard Stock)</option>
+                        <option value="2">2 — Normal Replacement</option>
+                        <option value="3" selected>3 — High (Breakdown Risk)</option>
+                        <option value="4">4 — Very High (Line Halt)</option>
+                        <option value="5">5 — Critical (Factory Shutdown)</option>
+                    </select>
+                </div>
 
-    <div class="card">
-        <h2>Buyer Portal</h2>
-        <input id="query" placeholder="Search Part">
-        <input id="urgency" type="number" placeholder="Urgency Level (1-5)">
-        <button onclick="searchPart()">Search Network</button>
+                <div class="form-group">
+                    <label>Quantity Required</label>
+                    <input id="search-qty" type="number" value="1" min="1">
+                </div>
 
-        <div id="results"></div>
+                <div class="form-group">
+                    <label>Max Delivery Deadline (Days)</label>
+                    <input id="search-delivery-days" type="number" placeholder="e.g. 2" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label>Search Radius (km)</label>
+                    <input id="search-radius" type="number" placeholder="e.g. 100" value="100">
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="executeSearch()">Search Network (Semantic AI + Haversine Match)</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 class="section-title">Available Inventory Listings</h3>
+            <span id="results-count-badge" class="status-badge badge-info">0 matched products</span>
+        </div>
+
+        <div id="results-container" class="product-grid">
+            <div style="grid-column: 1/-1; text-align:center; padding:60px; color:var(--text-muted);">
+                Click "Search Network" to discover matching spare parts across nearby industrial clusters.
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: SELLER PORTAL -->
+    <div id="tab-seller-portal" class="tab-content hidden">
+        <div class="form-grid" style="margin-bottom:30px;">
+            <div class="card" style="margin:0;">
+                <p style="font-size:14px; color:var(--text-muted);">Total Listed Parts</p>
+                <h3 style="font-size:32px; font-weight:800; color:#ffffff;" id="kpi-total-parts">10</h3>
+            </div>
+            <div class="card" style="margin:0;">
+                <p style="font-size:14px; color:var(--text-muted);">Verification Status</p>
+                <h3 style="font-size:20px; font-weight:700; color:var(--success-green);" id="kpi-ver-status">Verified</h3>
+            </div>
+            <div class="card" style="margin:0;">
+                <p style="font-size:14px; color:var(--text-muted);">Active Deals</p>
+                <h3 style="font-size:32px; font-weight:800; color:var(--primary-blue);" id="kpi-active-deals">1</h3>
+            </div>
+            <div class="card" style="margin:0;">
+                <p style="font-size:14px; color:var(--text-muted);">Seller Rating</p>
+                <h3 style="font-size:32px; font-weight:800; color:var(--warning-amber);">⭐ 4.8 / 5</h3>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <!-- OCR LABEL EXTRACTION TOOL -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📷 EasyOCR Label Extraction Tool</h3>
+                </div>
+                <p style="font-size:15px; color:var(--text-secondary); margin-bottom:20px;">
+                    Upload product label or nameplate image. EasyOCR automatically parses part specifications for preview and auto-listing.
+                </p>
+
+                <div class="form-group">
+                    <label>Select Product Label Image</label>
+                    <input type="file" id="ocr-file-input" accept="image/*">
+                </div>
+
+                <button class="btn btn-accent btn-block" onclick="previewOCRText()">Run OCR Label Inspection</button>
+
+                <div id="ocr-preview-box" class="hidden" style="margin-top:20px; background:var(--bg-surface); padding:18px; border-radius:12px; border:1px solid var(--border-color);">
+                    <p style="font-size:12px; color:var(--accent-cyan); text-transform:uppercase; font-weight:700;">Extracted OCR Text Preview:</p>
+                    <p id="ocr-extracted-text" style="font-size:16px; font-weight:700; color:var(--success-green); margin:10px 0;"></p>
+                    <button class="btn btn-success btn-sm btn-block" onclick="useOCRForForm()">Pre-fill Product Listing Form</button>
+                </div>
+            </div>
+
+            <!-- ADD NEW PRODUCT FORM -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📦 Add New Industrial Spare Part</h3>
+                </div>
+
+                <div class="form-group">
+                    <label>Part Name *</label>
+                    <input id="list-name" placeholder="e.g. SKF Deep Groove Ball Bearing 6205-2RSH">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Base Price (₹) *</label>
+                        <input id="list-price" type="number" placeholder="450">
+                    </div>
+                    <div class="form-group">
+                        <label>Manufacturer / OEM</label>
+                        <input id="list-mfr" placeholder="e.g. SKF">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Model Number</label>
+                        <input id="list-model" placeholder="6205-2RSH">
+                    </div>
+                    <div class="form-group">
+                        <label>Part Number</label>
+                        <input id="list-partnum" placeholder="SKF-6205">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select id="list-condition">
+                            <option value="New">New</option>
+                            <option value="Unused Surplus">Unused Surplus</option>
+                            <option value="Used">Used</option>
+                            <option value="Refurbished">Refurbished</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Qty</label>
+                        <input id="list-qty" type="number" value="5">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="createProductListing()">List Spare Part in Secure Inventory</button>
+            </div>
+        </div>
+
+        <!-- MY INVENTORY TABLE -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📋 My Inventory Spares</h3>
+                <button class="btn btn-sm btn-secondary" onclick="loadMyListings()">Refresh Inventory</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Part Name</th>
+                            <th>Condition</th>
+                            <th>Base Price</th>
+                            <th>Stock Qty</th>
+                            <th>Verification</th>
+                            <th>Stock Confirmed</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-listings-body">
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Log in as a seller to view inventory.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: ADMIN CONSOLE -->
+    <div id="tab-admin-panel" class="tab-content hidden">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">🛡️ Admin Verification Center (Government Registration & Tax Records)</h2>
+                    <p style="font-size:14px; color:var(--text-muted); margin-top:4px;">Audit submitted registration certificates, verify address credentials, and issue verified seller badges.</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="loadAdminSellers()">Refresh Applications</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company & Representative</th>
+                            <th>Registration Details</th>
+                            <th>Location</th>
+                            <th>Certificate Document</th>
+                            <th>Status</th>
+                            <th>Manual Audit Checklist</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-sellers-body">
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Log in as Admin (admin@ghostinventory.com) to access application audit queue.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: TRANSACTIONS WORKFLOW -->
+    <div id="tab-transactions" class="tab-content hidden">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">🤝 Peer-to-Peer Transactions & Logistics Pipeline</h2>
+                    <p style="font-size:14px; color:var(--text-muted); margin-top:4px;">Track transaction status, confirm stock availability, and reveal seller contact credentials.</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="loadMyTransactions()">Refresh Transactions</button>
+            </div>
+
+            <div id="transactions-list">
+                <p style="text-align:center; color:var(--text-muted); padding:30px;">Log in to view active purchase requests and deals.</p>
+            </div>
+        </div>
     </div>
 
 </div>
 
+<!-- COMPREHENSIVE PRODUCT DETAIL MODAL -->
+<div id="product-detail-modal" class="modal-overlay">
+    <div class="modal-box">
+        <span class="modal-close" onclick="closeModal('product-detail-modal')">&times;</span>
+        <h2 id="modal-part-name" style="font-family:var(--font-heading); font-size:24px; font-weight:800; margin-bottom:8px;">Part Details</h2>
+        <p id="modal-part-meta" style="color:var(--text-secondary); font-size:15px; margin-bottom:20px;"></p>
+
+        <div style="background:#0f172a; padding:20px; border-radius:14px; border:1px solid var(--border-color); margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span class="status-badge badge-verified" id="modal-ver-badge">Verified Seller</span>
+                <span style="font-size:14px; color:var(--accent-cyan);" id="modal-distance">📍 1.2 km away</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <div>
+                    <span style="font-size:13px; color:var(--text-muted); text-decoration:line-through;" id="modal-base-price">₹450</span>
+                    <span style="font-size:28px; font-weight:800; color:var(--success-green); margin-left:10px;" id="modal-suggested-price">₹550</span>
+                </div>
+                <span style="font-size:13px; color:var(--text-muted);" id="modal-stock">Stock: 45 available</span>
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <h4 style="font-size:16px; font-weight:700; margin-bottom:8px;">Specifications & Overview</h4>
+            <p id="modal-description" style="font-size:15px; color:var(--text-secondary); line-height:1.6;"></p>
+        </div>
+
+        <div style="margin-bottom:24px;">
+            <h4 style="font-size:16px; font-weight:700; margin-bottom:8px;">Seller & Trust Profile</h4>
+            <p style="font-size:15px; color:var(--text-secondary);" id="modal-seller-info"></p>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="modal-purchase-btn">Request Purchase & Confirm Deal</button>
+    </div>
+</div>
+
+<!-- AUTHENTICATION MODAL -->
+<div id="auth-modal" class="modal-overlay">
+    <div class="modal-box">
+        <span class="modal-close" onclick="closeModal('auth-modal')">&times;</span>
+        
+        <div style="display:flex; gap:10px; margin-bottom:24px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+            <button id="auth-tab-login" class="nav-item active" onclick="switchAuthTab('login')">Login</button>
+            <button id="auth-tab-buyer" class="nav-item" onclick="switchAuthTab('buyer')">Buyer Signup</button>
+            <button id="auth-tab-seller" class="nav-item" onclick="switchAuthTab('seller')">Seller Signup</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="form-login">
+            <h3 style="font-family:var(--font-heading); font-size:22px; margin-bottom:18px;">Account Login</h3>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input id="login-email" placeholder="user@company.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input id="login-password" type="password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="submitLogin()">Login to Platform</button>
+        </div>
+
+        <!-- BUYER SIGNUP FORM -->
+        <div id="form-buyer" class="hidden">
+            <h3 style="font-family:var(--font-heading); font-size:22px; margin-bottom:18px;">Buyer Registration</h3>
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input id="reg-buyer-name" placeholder="Vikram Patel">
+            </div>
+            <div class="form-group">
+                <label>Business Email *</label>
+                <input id="reg-buyer-email" placeholder="buyer@factory.com">
+            </div>
+            <div class="form-group">
+                <label>Password *</label>
+                <input id="reg-buyer-password" type="password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Company / Plant Name</label>
+                <input id="reg-buyer-company" placeholder="Auto Assembly Plant #4">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="submitRegisterBuyer()">Register Buyer Account</button>
+        </div>
+
+        <!-- SELLER SIGNUP FORM WITH STEPPER -->
+        <div id="form-seller" class="hidden">
+            <div class="stepper">
+                <span class="step-item active">1. Account</span>
+                <span class="step-item active">2. Business Details</span>
+                <span class="step-item active">3. Certificate</span>
+                <span class="step-item">4. Admin Audit</span>
+            </div>
+
+            <h3 style="font-family:var(--font-heading); font-size:22px; margin-bottom:18px;">Seller Application</h3>
+            <div class="form-group">
+                <label>Company Name *</label>
+                <input id="reg-seller-company" placeholder="Apex Precision Components Ltd">
+            </div>
+            <div class="form-group">
+                <label>Representative Name *</label>
+                <input id="reg-seller-name" placeholder="Rajesh Sharma">
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Business Email *</label>
+                    <input id="reg-seller-email" placeholder="sales@apex.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input id="reg-seller-phone" placeholder="+91 98230 11223">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password *</label>
+                <input id="reg-seller-password" type="password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Business Address *</label>
+                <input id="reg-seller-address" placeholder="Plot 45, MIDC Industrial Area">
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>City *</label>
+                    <input id="reg-seller-city" placeholder="Pune">
+                </div>
+                <div class="form-group">
+                    <label>State *</label>
+                    <input id="reg-seller-state" placeholder="Maharashtra">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Registration Type *</label>
+                    <select id="reg-seller-regtype">
+                        <option value="GSTIN">GSTIN (Tax Reg)</option>
+                        <option value="CIN">CIN (Corporate ID)</option>
+                        <option value="Udyam">Udyam MSME</option>
+                        <option value="ISO">ISO Certification</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Registration # *</label>
+                    <input id="reg-seller-regnum" placeholder="27AAACA1234A1Z5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Upload Registration Certificate (PDF/JPG/PNG)</label>
+                <input type="file" id="reg-seller-cert" accept=".pdf,.jpg,.jpeg,.png">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="submitRegisterSeller()">Submit Business Application</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST NOTIFICATION CONTAINER -->
+<div id="toast-container"></div>
+
 <footer>
-    AI-Powered Local Supply Mesh | Confidential Matching Engine
+    Ghost Inventory &copy; 2026 | Trust-Based Industrial Spare Parts Exchange & AI Matching Mesh
 </footer>
 
 <script>
+let currentUser = null;
+
+function showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `⚡ <span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// TAB NAVIGATION
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     
-async function uploadPart() {
-    const data = {
-        part_name: document.getElementById("part_name").value,
-        material: document.getElementById("material").value,
-        size: document.getElementById("size").value,
-        base_price: parseFloat(document.getElementById("base_price").value),
-        seller_name: document.getElementById("seller_name").value
+    document.getElementById('tab-' + tabId).classList.remove('hidden');
+    
+    const btn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.getAttribute('onclick')?.includes(tabId));
+    if (btn) btn.classList.add('active');
+
+    if (tabId === 'marketplace') executeSearch();
+    if (tabId === 'seller-portal') loadMyListings();
+    if (tabId === 'admin-panel') loadAdminSellers();
+    if (tabId === 'transactions') loadMyTransactions();
+}
+
+// CHECK CURRENT USER SESSION
+async function checkAuth() {
+    try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.authenticated) {
+            currentUser = data;
+            document.getElementById('user-name-display').innerText = data.full_name + ' (' + (data.company_name || 'Industrial Member') + ')';
+            
+            const badge = document.getElementById('user-role-badge');
+            badge.innerText = data.role.toUpperCase();
+            badge.className = 'role-badge role-' + data.role;
+
+            document.getElementById('auth-btn').innerText = 'Logout';
+            document.getElementById('auth-btn').onclick = logout;
+        } else {
+            currentUser = null;
+            document.getElementById('user-name-display').innerText = 'Guest User';
+            document.getElementById('user-role-badge').innerText = 'GUEST';
+            document.getElementById('user-role-badge').className = 'role-badge role-guest';
+            document.getElementById('auth-btn').innerText = 'Login / Register';
+            document.getElementById('auth-btn').onclick = () => openAuthModal();
+        }
+    } catch (e) {
+        console.error('Auth check error', e);
+    }
+}
+
+// QUICK LOGIN DEMO SWITCHER
+async function quickLogin(email, password) {
+    const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    const result = await res.json();
+    if (res.ok) {
+        await checkAuth();
+        showToast('Switched user role to: ' + result.user.full_name + ' (' + result.user.role + ')');
+    } else {
+        showToast(result.detail || 'Login failed');
+    }
+}
+
+async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    await checkAuth();
+    showToast('Logged out');
+}
+
+// MODAL CONTROLS
+function openAuthModal(defaultTab = 'login') {
+    document.getElementById('auth-modal').classList.add('active');
+    switchAuthTab(defaultTab);
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function switchAuthTab(tab) {
+    ['login', 'buyer', 'seller'].forEach(t => {
+        document.getElementById('form-' + t).classList.add('hidden');
+        document.getElementById('auth-tab-' + t).classList.remove('active');
+    });
+    document.getElementById('form-' + tab).classList.remove('hidden');
+    document.getElementById('auth-tab-' + tab).classList.add('active');
+}
+
+async function submitLogin() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+        closeModal('auth-modal');
+        await checkAuth();
+        showToast('Welcome back, ' + data.user.full_name + '!');
+    } else {
+        showToast(data.detail || 'Invalid login details');
+    }
+}
+
+async function submitRegisterBuyer() {
+    const payload = {
+        full_name: document.getElementById('reg-buyer-name').value,
+        email: document.getElementById('reg-buyer-email').value,
+        password: document.getElementById('reg-buyer-password').value,
+        company_name: document.getElementById('reg-buyer-company').value
+    };
+    const res = await fetch('/api/auth/register/buyer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok) {
+        closeModal('auth-modal');
+        await checkAuth();
+        showToast('Buyer registration successful!');
+    } else {
+        showToast(data.detail || 'Registration failed');
+    }
+}
+
+async function submitRegisterSeller() {
+    const formData = new FormData();
+    formData.append('company_name', document.getElementById('reg-seller-company').value);
+    formData.append('full_name', document.getElementById('reg-seller-name').value);
+    formData.append('email', document.getElementById('reg-seller-email').value);
+    formData.append('phone', document.getElementById('reg-seller-phone').value);
+    formData.append('password', document.getElementById('reg-seller-password').value);
+    formData.append('business_address', document.getElementById('reg-seller-address').value);
+    formData.append('city', document.getElementById('reg-seller-city').value);
+    formData.append('state', document.getElementById('reg-seller-state').value);
+    formData.append('registration_type', document.getElementById('reg-seller-regtype').value);
+    formData.append('registration_number', document.getElementById('reg-seller-regnum').value);
+
+    const fileInput = document.getElementById('reg-seller-cert');
+    if (fileInput.files[0]) {
+        formData.append('certificate_file', fileInput.files[0]);
+    }
+
+    const res = await fetch('/api/auth/register/seller', {
+        method: 'POST',
+        body: formData
+    });
+    const data = await res.json();
+    if (res.ok) {
+        closeModal('auth-modal');
+        await checkAuth();
+        showToast('Seller application submitted! Status: Pending Admin Review.');
+    } else {
+        showToast(data.detail || 'Application error');
+    }
+}
+
+// BUYER MARKETPLACE SEARCH
+async function executeSearch() {
+    const query = document.getElementById('search-query').value;
+    const urgency_level = parseInt(document.getElementById('search-urgency').value);
+    const quantity_required = parseInt(document.getElementById('search-qty').value) || 1;
+    const required_delivery_days = parseInt(document.getElementById('search-delivery-days').value) || null;
+    const search_radius_km = parseFloat(document.getElementById('search-radius').value) || null;
+
+    const payload = {
+        query,
+        urgency_level,
+        quantity_required,
+        required_delivery_days,
+        search_radius_km,
+        buyer_lat: window.buyerLat || 18.5204,
+        buyer_lon: window.buyerLon || 73.8567
     };
 
-    const response = await fetch("/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+    const res = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
     });
+    const data = await res.json();
+    
+    const container = document.getElementById('results-container');
+    container.innerHTML = '';
+    document.getElementById('results-count-badge').innerText = (data.matches ? data.matches.length : 0) + ' matched products';
 
-    const result = await response.json();
-    document.getElementById("upload_status").innerText = result.message;
+    if (!data.matches || data.matches.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; font-size: 18px; color:var(--text-muted);">No matching products found</div>';
+        return;
+    }
+
+    data.matches.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+
+        // Seller verification status badge styling
+        let badgeClass = 'badge-pending';
+        if (item.seller_verification_badge === 'DEMO VERIFIED') badgeClass = 'badge-verified';
+        else if (item.seller_verification_badge === 'Verified Seller') badgeClass = 'badge-verified';
+        else if (item.seller_verification_badge === 'UNDER REVIEW') badgeClass = 'badge-info';
+        else if (item.seller_verification_badge === 'REJECTED') badgeClass = 'badge-rejected';
+
+        // Render product image area ONLY if a real primary image exists (eliminating empty 180px boxes)
+        let imageArea = '';
+        if (item.primary_image) {
+            imageArea = `
+                <div class="product-image-area">
+                    <img src="/${item.primary_image}" alt="${item.part_name}">
+                </div>
+            `;
+        }
+
+        div.innerHTML = `
+            <div>
+                ${imageArea}
+
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                    <span class="status-badge ${badgeClass}">${item.seller_verification_badge}</span>
+                    <span class="status-badge badge-info">${item.condition || 'New'}</span>
+                </div>
+
+                <h3 class="product-title">${item.part_name}</h3>
+                <p class="product-meta">
+                    <strong>${item.seller_name}</strong> · ${item.manufacturer} (Model: ${item.model_number})
+                </p>
+                <p style="font-size:14px; color:var(--text-secondary); margin-bottom:12px; line-height:1.45;">${item.description || ''}</p>
+
+                <div class="price-container">
+                    <div>
+                        <div class="price-base">Listed: ₹${item.base_price}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">Base Price</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="price-suggested">₹${item.suggested_price}</div>
+                        <div style="font-size:11px; color:var(--success-green);">Urgency Lvl ${item.urgency_level} Suggested</div>
+                    </div>
+                </div>
+
+                <div class="location-info">
+                    📍 ${item.distance_label} &nbsp;|&nbsp; ⚡ ${item.estimated_delivery_label}
+                </div>
+
+                <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">
+                    ⭐ <strong>${item.seller_avg_rating} / 5</strong> (${item.seller_review_count} reviews) &nbsp;|&nbsp; Stock: ${item.available_quantity} available
+                </div>
+
+                <div class="ai-explanation">
+                    💡 ${item.match_explanation}
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="openProductDetailModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">View Details</button>
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="requestPurchase(${item.part_id}, ${item.urgency_level})">Confirm Deal</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
 }
-async function uploadImage() {
-    const fileInput = document.getElementById("imageUpload");
-    const file = fileInput.files[0];
 
-    if (!file) {
-        alert("Please select an image first.");
+function openProductDetailModal(item) {
+    document.getElementById('modal-part-name').innerText = item.part_name;
+    document.getElementById('modal-part-meta').innerText = `${item.manufacturer} | Model: ${item.model_number} | Part #: ${item.part_number}`;
+    document.getElementById('modal-ver-badge').innerText = item.seller_verification_badge;
+    document.getElementById('modal-distance').innerText = `📍 ${item.distance_label} | Est. Dispatch: ${item.estimated_dispatch_days} day(s)`;
+    document.getElementById('modal-base-price').innerText = `Listed: ₹${item.base_price}`;
+    document.getElementById('modal-suggested-price').innerText = `₹${item.suggested_price}`;
+    document.getElementById('modal-stock').innerText = `Stock: ${item.available_quantity} available (${item.condition})`;
+    document.getElementById('modal-description').innerText = item.description || 'Industrial spare part description.';
+    document.getElementById('modal-seller-info').innerText = `Listed by ${item.seller_name} · Seller Rating: ⭐ ${item.seller_avg_rating} / 5 (${item.seller_review_count} reviews)`;
+
+    document.getElementById('modal-purchase-btn').onclick = function() {
+        closeModal('product-detail-modal');
+        requestPurchase(item.part_id, item.urgency_level);
+    };
+
+    document.getElementById('product-detail-modal').classList.add('active');
+}
+
+function getUserGPSLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                window.buyerLat = pos.coords.latitude;
+                window.buyerLon = pos.coords.longitude;
+                showToast('Captured GPS coordinates for Haversine distance matching!');
+            },
+            () => showToast('GPS location denied. Using city fallback.')
+        );
+    }
+}
+
+async function requestPurchase(partId, urgencyLevel) {
+    if (!currentUser) {
+        showToast('Please log in as a Buyer to request purchase.');
+        openAuthModal('login');
+        return;
+    }
+
+    const qty = parseInt(document.getElementById('search-qty').value) || 1;
+    const res = await fetch('/api/transactions/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            part_id: partId,
+            quantity: qty,
+            urgency_level: urgencyLevel,
+            delivery_address: (currentUser.company_name || 'Industrial Facility') + ' Assembly Plant'
+        })
+    });
+    const data = await res.json();
+    if (res.ok) {
+        showToast('Deal confirmed! Transaction request sent to seller.');
+        showTab('transactions');
+    } else {
+        showToast(data.detail || 'Request failed');
+    }
+}
+
+// OCR FUNCTIONS
+async function previewOCRText() {
+    const fileInput = document.getElementById('ocr-file-input');
+    if (!fileInput.files[0]) {
+        showToast('Please select a label image file first.');
         return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', fileInput.files[0]);
 
-    const response = await fetch("/upload-image", {
-        method: "POST",
+    const res = await fetch('/api/products/ocr-preview', {
+        method: 'POST',
         body: formData
     });
-
-    const result = await response.json();
-
-    document.getElementById("upload_status").innerText =
-        "Auto-listed: " + result.detected_text;
+    const data = await res.json();
+    if (res.ok) {
+        document.getElementById('ocr-preview-box').classList.remove('hidden');
+        document.getElementById('ocr-extracted-text').innerText = data.detected_text;
+        showToast('OCR label inspection complete!');
+    } else {
+        showToast(data.detail || 'OCR failed');
+    }
 }
 
-async function searchPart() {
-    const data = {
-        query: document.getElementById("query").value,
-        urgency_level: parseInt(document.getElementById("urgency").value)
-    };
+function useOCRForForm() {
+    const text = document.getElementById('ocr-extracted-text').innerText;
+    document.getElementById('list-name').value = text;
+    showToast('Pre-filled product name from OCR label text!');
+}
 
-    const response = await fetch("/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+// SELLER LISTINGS
+async function createProductListing() {
+    if (!currentUser || currentUser.role === 'buyer') {
+        showToast('Only authorized sellers can list spare parts.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('part_name', document.getElementById('list-name').value);
+    formData.append('base_price', document.getElementById('list-price').value);
+    formData.append('manufacturer', document.getElementById('list-mfr').value);
+    formData.append('model_number', document.getElementById('list-model').value);
+    formData.append('part_number', document.getElementById('list-partnum').value);
+    formData.append('condition', document.getElementById('list-condition').value);
+    formData.append('available_quantity', document.getElementById('list-qty').value);
+
+    const res = await fetch('/api/products/create', {
+        method: 'POST',
+        body: formData
     });
+    const data = await res.json();
+    if (res.ok) {
+        showToast('Part listed successfully in secure inventory mesh!');
+        loadMyListings();
+    } else {
+        showToast(data.detail || 'Listing error');
+    }
+}
 
-    const result = await response.json();
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = "";
+async function loadMyListings() {
+    const res = await fetch('/api/products/my-listings');
+    const data = await res.json();
+    const tbody = document.getElementById('my-listings-body');
+    tbody.innerHTML = '';
 
-    result.matches.forEach(part => {
-        const div = document.createElement("div");
-        div.className = "result-card";
-        div.innerHTML = `
-            <p><strong>${part.part_name}</strong></p>
-            <p>${part.material} | ${part.size}</p>
-            <p class="price">Suggested Price: ${part.suggested_price}</p>
-            <button onclick="confirmDeal(${part.part_id})">Confirm Transaction</button>
+    if (!data.listings || data.listings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No active inventory listings found.</td></tr>';
+        return;
+    }
+
+    data.listings.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${item.part_name}</strong><br><small style="color:var(--text-muted);">${item.manufacturer || ''} ${item.model_number || ''}</small></td>
+            <td>${item.condition}</td>
+            <td style="color:var(--success-green); font-weight:700;">₹${item.base_price}</td>
+            <td>${item.available_quantity}</td>
+            <td><span class="status-badge ${item.verification_status==='Verified'?'badge-verified':'badge-pending'}">${item.verification_status}</span></td>
+            <td><small style="color:var(--text-muted);">${item.last_stock_confirmed_at ? new Date(item.last_stock_confirmed_at).toLocaleTimeString() : 'Not confirmed'}</small></td>
+            <td><button class="btn btn-sm btn-secondary" onclick="confirmStock(${item.id})">Confirm Stock</button></td>
         `;
-        resultsDiv.appendChild(div);
+        tbody.appendChild(tr);
     });
 }
 
-async function confirmDeal(partId) {
-    const response = await fetch("/confirm-deal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ part_id: partId })
-    });
-
-    const result = await response.json();
-    alert("Seller Identity Revealed: " + result.seller_name);
+async function confirmStock(partId) {
+    const res = await fetch(`/api/products/${partId}/confirm-stock`, { method: 'POST' });
+    if (res.ok) {
+        showToast('Stock availability confirmed timestamp updated!');
+        loadMyListings();
+    }
 }
+
+// ADMIN AUDIT APPLICATIONS
+async function loadAdminSellers() {
+    const res = await fetch('/api/admin/sellers');
+    if (!res.ok) {
+        document.getElementById('admin-sellers-body').innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--danger-red);">Access Denied: Requires Admin Role (admin@ghostinventory.com).</td></tr>';
+        return;
+    }
+    const data = await res.json();
+    const tbody = document.getElementById('admin-sellers-body');
+    tbody.innerHTML = '';
+
+    data.sellers.forEach(s => {
+        const tr = document.createElement('tr');
+        let certBtn = s.has_certificate ? `<a href="/api/admin/certificate/${s.certificate_filename}" target="_blank" style="color:var(--primary-blue); font-weight:600;">📄 View Document</a>` : 'No file';
+        let badgeClass = s.verification_status === 'Verified' ? (s.is_demo_verified ? 'badge-demo' : 'badge-verified') : 'badge-pending';
+        let badgeText = s.is_demo_verified ? 'DEMO VERIFIED' : s.verification_status;
+
+        tr.innerHTML = `
+            <td><strong>${s.company_name}</strong><br><small style="color:var(--text-muted);">Rep: ${s.representative_name}</small></td>
+            <td>${s.registration_type}: ${s.registration_number}</td>
+            <td>${s.city}, ${s.state}</td>
+            <td>${certBtn}</td>
+            <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+            <td style="font-size:13px;">☑️ Reg Valid &nbsp; ☑️ Address Match &nbsp; ☑️ Doc Clear</td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="verifySeller(${s.id}, 'Verified')">Approve</button>
+                <button class="btn btn-sm btn-secondary" style="color:var(--danger-red);" onclick="verifySeller(${s.id}, 'Rejected')">Reject</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function verifySeller(sellerId, newStatus) {
+    const note = prompt('Enter internal admin review notes:', 'Verified official business registration credentials.');
+    const res = await fetch(`/api/admin/sellers/${sellerId}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            status: newStatus,
+            notes: note,
+            checklist: { gstin_valid: true, address_matched: true, cert_verified: true }
+        })
+    });
+    if (res.ok) {
+        showToast('Seller application updated to ' + newStatus);
+        loadAdminSellers();
+    }
+}
+
+// TRANSACTIONS PIPELINE
+async function loadMyTransactions() {
+    const res = await fetch('/api/transactions/my-transactions');
+    const data = await res.json();
+    const container = document.getElementById('transactions-list');
+    container.innerHTML = '';
+
+    if (!data.transactions || data.transactions.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:30px;">No transactions found.</p>';
+        return;
+    }
+
+    data.transactions.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'card';
+
+        let contactBox = '';
+        if (t.seller_contact_info) {
+            const sc = t.seller_contact_info;
+            contactBox = `
+                <div style="background:var(--bg-surface); border:1px solid var(--border-color); padding:16px; border-radius:12px; margin:16px 0;">
+                    <p style="color:var(--success-green); font-weight:700; font-size:14px; margin-bottom:6px;">🔓 Seller Identity Revealed (Stock Confirmed):</p>
+                    <p style="font-size:15px; color:#ffffff;"><strong>Seller Company:</strong> ${sc.company_name || sc.seller_name}</p>
+                    <p style="font-size:14px; color:var(--text-secondary);"><strong>Phone:</strong> ${sc.phone} | <strong>Email:</strong> ${sc.email}</p>
+                    <p style="font-size:14px; color:var(--text-secondary);"><strong>Facility Address:</strong> ${sc.address}</p>
+                </div>
+            `;
+        }
+
+        let actions = '';
+        if (currentUser && currentUser.role === 'seller' && t.status === 'Requested') {
+            actions += `<button class="btn btn-sm btn-success" onclick="confirmTxStock(${t.id})">Confirm Stock & Reveal Credentials</button> `;
+        }
+        if (t.status === 'Seller Confirmed' || t.status === 'Accepted') {
+            actions += `<button class="btn btn-sm btn-primary" onclick="updateTxStatus(${t.id}, 'Dispatched')">Mark Dispatched</button> `;
+        }
+        if (t.status === 'Dispatched') {
+            actions += `<button class="btn btn-sm btn-success" onclick="updateTxStatus(${t.id}, 'Delivered')">Confirm Delivered</button> `;
+        }
+
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="font-size:18px; font-weight:700; color:#ffffff;">${t.part_name} (Qty: ${t.quantity})</h3>
+                    <p style="font-size:14px; color:var(--text-muted);">Agreed Total: ₹${t.agreed_price} | Buyer: ${t.buyer_name}</p>
+                </div>
+                <span class="status-badge badge-verified">STATUS: ${t.status}</span>
+            </div>
+
+            ${contactBox}
+
+            <div style="margin-top:14px;">${actions}</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+async function confirmTxStock(txId) {
+    const res = await fetch(`/api/transactions/${txId}/confirm-stock`, { method: 'POST' });
+    if (res.ok) {
+        showToast('Stock confirmed! Identity revealed to buyer.');
+        loadMyTransactions();
+    }
+}
+
+async function updateTxStatus(txId, newStatus) {
+    const res = await fetch(`/api/transactions/${txId}/update-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+    });
+    if (res.ok) {
+        showToast('Transaction updated to ' + newStatus);
+        loadMyTransactions();
+    }
+}
+
+// INITIALIZATION
+window.onload = function() {
+    checkAuth();
+    executeSearch();
+};
 </script>
 
 </body>
